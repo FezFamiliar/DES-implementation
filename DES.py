@@ -55,8 +55,8 @@ def key_SCHEDULE(key_index):
     D = [None] * 16
     K = [None] * 16
     counter = 0
-    for PC_1_bits in range(len(PC_1)):
-        get_value = key[PC_1[PC_1_bits]]
+    for PC_1_bits in PC_1:
+        get_value = key[PC_1_bits]
         key[counter] = get_value
         counter = counter + 1
 
@@ -72,8 +72,9 @@ def key_SCHEDULE(key_index):
         if i == 1 or i == 2 or i == 9 or i == 16:
             C[i] = left_rotate(C[i - 1],1)
             D[i] = left_rotate(D[i - 1],1)
-        C[i] = left_rotate(C[i - 1],2)
-        D[i] = left_rotate(D[i - 1],2)
+        else:  
+            C[i] = left_rotate(C[i - 1],2)
+            D[i] = left_rotate(D[i - 1],2)
 
 
 
