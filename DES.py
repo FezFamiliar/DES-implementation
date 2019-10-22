@@ -79,6 +79,8 @@ E_e = [
      ]
 
 
+
+
 S_BOX = [
          
 [[14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7],
@@ -129,6 +131,13 @@ S_BOX = [
  [2, 1, 14, 7, 4, 10, 8, 13, 15, 12, 9, 0, 3, 5, 6, 11],
 ]
 ]
+
+
+
+P = [16, 7, 20, 21, 29, 12, 28, 17,
+     1, 15, 23, 26, 5, 18, 31, 10,
+     2, 8, 24, 14, 32, 27, 3, 9,
+     19, 13, 30, 6, 22, 11, 4, 25]
 def key_SCHEDULE(key_index):
     key = bitarray(endian='big')
     key.frombytes(b'ffffffff')
@@ -182,6 +191,90 @@ def f(block,key):
     ready_for_sbox = E(block) ^ key
 
     # do the substitution
+    sublocks = [None] * 8
+    aux = bitarray(endian='little')
+    j = 0
+    for k in range(0,len(ready_for_sbox),6):
+        sublocks[j] = ready_for_sbox[k:k+6]
+        j = j + 1
+
+    for i in range(len(sublocks)):
+        chunk = sublocks[i]
+        row = onethree(chunk[0],chunk[len(chunk) - 1])
+        column = onefifteen(chunk[1],chunk[2],chunk[3],chunk[4])
+        output_value = decimalToBinary(S_BOX[i][row][column])
+        aux.extend(output_value)
+
+
+
+    result = bitarray('0'*32,endian='little')
+    k = 0    
+    for x in P:
+        result[k] = aux[x - 1]
+        k = k + 1
+
+    return result
+
+
+   
+
+def decimalToBinary(n): 
+    return (bin(n).replace("0b","")).zfill(4)
+
+
+
+
+
+def onethree(first,second):
+    if first == False and second == False:
+        return 0
+    if first == False and second == True:
+        return 1
+    if first == True and second == False:   
+        return 2
+    if first == True and second == True:
+        return 3
+
+
+def onefifteen(first,second,third,fourth):
+    if first == False and second == False and third == False and fourth == False:
+        return 0
+    if first == False and second == False and third == False and fourth == True:
+        return 1
+    if first == False and second == False and third == True and  fourth == False:
+        return 2
+    if first == False and second == False and third == True and  fourth == True:
+        return 3
+    if first == False and second == True and third == False and  fourth == False:
+        return 4
+    if first == False and second == True and third == False and  fourth == True:
+        return 5
+    if first == False and second == True and third == True and  fourth == False:
+        return 6
+    if first == False and second == True and third == True and  fourth == True:
+        return 7
+    if first == True and second == False and third == False and  fourth == False:
+        return 8   
+    if first == True and second == False and third == False and  fourth == True:
+        return 9
+    if first == True and second == False and third == True and  fourth == False:
+        return 10
+    if first == True and second == False and third == True and  fourth == True:
+        return 11
+    if first == True and second == True and third == False and  fourth == False:
+        return 12
+    if first == True and second == True and third == False and  fourth == True:
+        return 13
+    if first == True and second == True and third == True and  fourth == False:
+        return 14 
+    if first == True and second == True and third == True and  fourth == True:
+        return 15     
+
+
+
+
+
+
 
 def E(input_array):
     counter = 0
@@ -195,7 +288,8 @@ def DES(msg):
 
     msg = padding(msg)
     ip_aux = bitarray('0'*len(msg),endian='little')
-    
+    ip_reverse_aux = bitarray('0'*len(msg),endian='little')
+    result = bitarray('0'*len(msg),endian='little')
     counter = 0
     L = [None] * 32
     R = [None] * 32
@@ -215,13 +309,18 @@ def DES(msg):
         R[i] = L[i - 1] ^ f(R[i - 1],key_SCHEDULE(i - 1))
     
 
+    result = L[16].copy()
+    result.extend(R[16])
 
-    # L = [int.from_bytes(word.tobytes(),byteorder='little') for word in L]
-    # R = [int.from_bytes(word.tobytes(),byteorder='little') for word in R]
+    counter = 0
+    for reverse_ip in IP_inverse:
+        ip_reverse_aux[counter] = result[reverse_ip - 1]
+        counter = counter + 1
 
-    # return format(L[15],'0x') + format(R[15],'0x')
+    
+    return result
 
 
-DES('vgg')
+print(DES('vggfrfr'))
 
 
