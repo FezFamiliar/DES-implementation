@@ -284,7 +284,7 @@ def E(input_array):
         counter = counter + 1  
     return result
 
-def DES(msg):
+def DES_ENCRYPT(msg):
 
     msg = padding(msg)
     ip_aux = bitarray('0'*len(msg),endian='little')
@@ -321,6 +321,6 @@ def DES(msg):
     return result
 
 
-print(DES('vggfrfr'))
+print(DES_ENCRYPT('vggfrfr'))
 
 
