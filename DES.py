@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 from bitarray import bitarray
-
+import binascii
 
 
 def padding(msg):
@@ -319,9 +319,13 @@ def DES_ENCRYPT(msg):
         counter = counter + 1
 
     
-    return result
+    enc = ''
+    for x in result.tobytes():
+        enc += hex(x).replace('0x','')
+
+    return enc
 
 
-print(DES_ENCRYPT('vgddd'))
+print(DES_ENCRYPT('meet me at midnight'))
 
 
