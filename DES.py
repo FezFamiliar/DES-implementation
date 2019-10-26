@@ -149,9 +149,9 @@ P = [16, 7, 20, 21, 29, 12, 28, 17,
      1, 15, 23, 26, 5, 18, 31, 10,
      2, 8, 24, 14, 32, 27, 3, 9,
      19, 13, 30, 6, 22, 11, 4, 25]
-def key_SCHEDULE(key_index):
-    key = bitarray(endian='big')
-    key.frombytes(b'ffgffgff')
+def key_SCHEDULE(key_index,key):
+
+
     key_first_permutate = bitarray('0'*64,endian='little')
     C = [None] * 16
     D = [None] * 16
@@ -293,7 +293,7 @@ def E(input_array):
         counter = counter + 1  
     return result
 
-def ECB(msg):
+def ECB(msg,key):
     msg = padding(msg)
     ciphertext = ''
     for blocks in range(0,int(len(msg)/64)):
@@ -317,7 +317,7 @@ def ECB(msg):
 
         for i in range(1,17):
             L[i] = R[i - 1]
-            R[i] = L[i - 1] ^ f(R[i - 1],key_SCHEDULE(i - 1))
+            R[i] = L[i - 1] ^ f(R[i - 1],key_SCHEDULE(i - 1,key))
         
 
         result = L[16].copy()
@@ -337,12 +337,12 @@ def ECB(msg):
 
     return ciphertext
 
-def DES_ENCRYPT(msg,MODE_OPERATION):
+def DES_ENCRYPT(msg,MODE_OPERATION,key):
 
     
 
     if MODE_OPERATION[0] is True: 
-        return ECB(msg)
+        return ECB(msg,key)
     elif MODE_OPERATION[1] is True: 
         return CBC(msg)
     elif MODE_OPERATION[2] is True: 
@@ -352,6 +352,9 @@ def DES_ENCRYPT(msg,MODE_OPERATION):
 
    
 
-msg = 'meefffffffff'
-print(DES_ENCRYPT(msg,MODES))
+msg = 'meeafff'
+
+key = bitarray(endian='big')
+key.frombytes(b'secrsecr')
+print(DES_ENCRYPT(msg,MODES,key))
 
