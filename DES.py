@@ -151,7 +151,7 @@ P = [16, 7, 20, 21, 29, 12, 28, 17,
      19, 13, 30, 6, 22, 11, 4, 25]
 def key_SCHEDULE(key_index):
     key = bitarray(endian='big')
-    key.frombytes(b'ffffffff')
+    key.frombytes(b'ffgffgff')
     key_first_permutate = bitarray('0'*64,endian='little')
     C = [None] * 16
     D = [None] * 16
