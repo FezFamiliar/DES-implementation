@@ -3,6 +3,17 @@
 from bitarray import bitarray
 import binascii
 
+MODES = [True, False, False, False]
+
+'''
+    0: ECB
+    1: CBC
+    2: CFB
+    3: OFB
+
+'''
+
+
 
 def padding(msg):
     a = bitarray(endian='big')
@@ -274,9 +285,6 @@ def onefifteen(first,second,third,fourth):
 
 
 
-
-
-
 def E(input_array):
     counter = 0
     result = bitarray('0'*48,endian='little')
@@ -285,50 +293,65 @@ def E(input_array):
         counter = counter + 1  
     return result
 
-def DES_ENCRYPT(msg):
-
+def ECB(msg):
     msg = padding(msg)
-    # print(len(msg))
-    # exit()
-    ip_aux = bitarray('0'*len(msg),endian='little')
-    ip_reverse_aux = bitarray('0'*len(msg),endian='little')
-    result = bitarray('0'*len(msg),endian='little')
-    counter = 0
-    L = [None] * 32
-    R = [None] * 32
+    ciphertext = ''
+    for blocks in range(0,int(len(msg)/64)):
 
-    for ip in IP:
-        ip_aux[counter] = msg[ip - 1]
-        counter = counter + 1
+        ip_aux = bitarray('0'*len(msg),endian='little')
+        ip_reverse_aux = bitarray('0'*len(msg),endian='little')
+        result = bitarray('0'*len(msg),endian='little')
+        counter = 0
+        L = [None] * 32
+        R = [None] * 32
+
+        for ip in IP:
+            ip_aux[counter] = msg[ip - 1]
+            counter = counter + 1
+        
+        
+        L[0] = ip_aux[32*blocks:32*blocks+32] 
+        R[0] = ip_aux[32*blocks+32:32*blocks+64]
+
+        # 16 ROUNDS, this is where the magic happend
+
+        for i in range(1,17):
+            L[i] = R[i - 1]
+            R[i] = L[i - 1] ^ f(R[i - 1],key_SCHEDULE(i - 1))
+        
+
+        result = L[16].copy()
+        result.extend(R[16])
+
+        counter = 0
+        for reverse_ip in IP_inverse:
+            ip_reverse_aux[counter] = result[reverse_ip - 1]
+            counter = counter + 1
+
+        
+        enc = ''
+        for x in result.tobytes():
+            enc += hex(x).replace('0x','')
+
+        ciphertext += enc
+
+    return ciphertext
+
+def DES_ENCRYPT(msg,MODE_OPERATION):
+
     
-    
-    L[0] = ip_aux[0:32]
-    R[0] = ip_aux[32:64]
 
-    # 16 ROUNDS, this is where the magic happend
+    if MODE_OPERATION[0] is True: 
+        return ECB(msg)
+    elif MODE_OPERATION[1] is True: 
+        return CBC(msg)
+    elif MODE_OPERATION[2] is True: 
+        return CFB(msg)
+    else: 
+        return OFB(msg)   
 
-    for i in range(1,17):
-        L[i] = R[i - 1]
-        R[i] = L[i - 1] ^ f(R[i - 1],key_SCHEDULE(i - 1))
-    
+   
 
-    result = L[16].copy()
-    result.extend(R[16])
-
-    counter = 0
-    for reverse_ip in IP_inverse:
-        ip_reverse_aux[counter] = result[reverse_ip - 1]
-        counter = counter + 1
-
-    
-    enc = ''
-    for x in result.tobytes():
-        enc += hex(x).replace('0x','')
-
-    return enc
-
-msg = 'meet me'
-print(DES_ENCRYPT(msg))
-
-
+msg = 'meefffffffff'
+print(DES_ENCRYPT(msg,MODES))
 
