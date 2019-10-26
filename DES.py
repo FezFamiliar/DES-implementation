@@ -141,23 +141,24 @@ P = [16, 7, 20, 21, 29, 12, 28, 17,
 def key_SCHEDULE(key_index):
     key = bitarray(endian='big')
     key.frombytes(b'ffffffff')
-    
+    key_first_permutate = bitarray('0'*64,endian='little')
     C = [None] * 16
     D = [None] * 16
     K = [None] * 16
+    key_second_permutate = [None] * 16
     counter = 0
+
     for PC_1_bits in PC_1:
-        get_value = key[PC_1_bits]
-        key[counter] = get_value
+        key_first_permutate[counter] = key[PC_1_bits]
         counter = counter + 1
 
 
-    for drop_bit in range(len(key) - 1,0,-8):
-        key.pop(drop_bit)
+    for drop_bit in range(len(key_first_permutate) - 1,0,-8):
+        key_first_permutate.pop(drop_bit)
 
 
-    C[0] = key[0:28]
-    D[0] = key[28:56]
+    C[0] = key_first_permutate[0:28]
+    D[0] = key_first_permutate[28:56]
 
     for i in range(1,16):
         if i == 1 or i == 2 or i == 9 or i == 16:
@@ -172,14 +173,14 @@ def key_SCHEDULE(key_index):
     ignore_bits = [54,43,38,35,25,22,18,9]
     for i in range(16):
 
-        K[i] = C[i] + D[i]
+        key_second_permutate[i] = C[i] + D[i]
+        K[i] = bitarray('0'*56,endian='little')
         counter = 0
 
-        for PC_2_bits in PC_2:                    
-            get_value = K[i][PC_2_bits - 1]
-            K[i][counter] = get_value
+        for PC_2_bits in PC_2:    
+            K[i][counter] = key_second_permutate[i][PC_2_bits - 1]        
             counter = counter + 1
-
+  
 
         for x in ignore_bits:
             K[i].pop(x)
@@ -321,6 +322,6 @@ def DES_ENCRYPT(msg):
     return result
 
 
-print(DES_ENCRYPT('vggfrfr'))
+print(DES_ENCRYPT('vgddd'))
 
 
