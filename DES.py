@@ -288,6 +288,8 @@ def E(input_array):
 def DES_ENCRYPT(msg):
 
     msg = padding(msg)
+    # print(len(msg))
+    # exit()
     ip_aux = bitarray('0'*len(msg),endian='little')
     ip_reverse_aux = bitarray('0'*len(msg),endian='little')
     result = bitarray('0'*len(msg),endian='little')
@@ -325,7 +327,8 @@ def DES_ENCRYPT(msg):
 
     return enc
 
+msg = 'meet me'
+print(DES_ENCRYPT(msg))
 
-print(DES_ENCRYPT('meet me at midnight'))
 
 
